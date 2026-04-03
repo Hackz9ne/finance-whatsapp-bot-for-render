@@ -1,0 +1,22 @@
+services:
+  - type: worker
+    name: anubis-bot
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    disk:
+      name: anubis-data
+      mountPath: /opt/render/project/src/render-data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATA_DIR
+        value: /opt/render/project/src/render-data
+      - key: KNOWLEDGE_FILE_PATH
+        value: /opt/render/project/src/knowledge/yourpay-docs.txt
+      - key: OPENROUTER_MODEL
+        value: openrouter/free
+      - key: OPENROUTER_API_KEY
+        sync: false

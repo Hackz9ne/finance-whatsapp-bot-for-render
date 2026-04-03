@@ -1,0 +1,51 @@
+Student Finance Wallet Knowledge Base
+
+Student Finance Wallet uses the YourPay payment gateway. YourPay is a QR-only payment gateway focused on speed and security. The normal flow is to create a payment session, show a hosted checkout with a QR code, and poll the status until the payment is completed or expired.
+
+Authentication
+All API requests require a merchant API key. Test mode keys start with yp_test_. Live mode keys start with yp_live_.
+
+Create Payment Session
+Endpoint: POST /functions/v1/api-gateway/session
+Headers: X-Merchant-Key: <your_merchant_api_key> and Content-Type: application/json
+Body example: { "amount": 500.00, "order_id": "ORD_998877" }
+Typical response fields: session_id, payment_token, payment_url, merchant_name, and amount.
+
+Check Payment Status
+Endpoint: GET /functions/v1/api-gateway/status?token=<payment_token>
+Typical response fields: status, is_expired, amount, and order_id.
+Status values are pending, completed, expired, and failed.
+
+Frontend Integration
+Include checkout.js in the HTML page before launching checkout. The recommended production flow is server-side:
+1. Create the session on your backend.
+2. Send the payment_token to the frontend.
+3. Open the checkout modal with YourPay.open({ token, onSuccess, onFailure }).
+
+Client-Side Quick Start
+Client-side initialization with an exposed API key is for test mode only. It is useful for fast prototyping but should not be used in production because it exposes the merchant API key in the browser.
+
+Flutter SDK
+The Flutter SDK opens a bottom sheet checkout flow. The recommended setup is to create the session on the backend first, then launch YourPay.open(context, token, merchantName, onSuccess, onFailure). A direct apiKey-based Flutter flow is only for rapid prototyping.
+
+Payment Expiry
+The QR code is valid for exactly 2 minutes or 120 seconds. When the session expires, checkout should show an expiry message and polling should stop. The user must restart checkout to continue.
+
+Security and Amount Handling
+The amount is fixed when the session is created and cannot be changed by the user. Polling is considered safe because it only exposes public payment status while the debit itself happens on the server side.
+
+Python Integration
+The Python example creates a session with a POST request to the session endpoint, opens the returned payment_url, then polls the status endpoint every few seconds until the status becomes completed or the session expires.
+
+Node.js Integration
+The Node.js example uses axios to POST to the session endpoint with amount and order_id, sends the X-Merchant-Key header, and reads the checkout URL from the response.
+
+Useful topics you can ask about
+- how to create a payment session
+- how to check payment status
+- how long the QR is valid
+- test mode vs live mode keys
+- JavaScript checkout flow
+- Flutter checkout flow
+- whether the amount can change
+- whether polling is secure
